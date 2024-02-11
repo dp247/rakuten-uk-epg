@@ -103,7 +103,7 @@ for channel in json:
     ch_name = channel['title']
     print(ch_name)
     ch_number = channel['channel_number']
-    ch_id = channel['numerical_id']
+    ch_id = channel['id']
     if channel['images'] is not None:
         images = channel['images']
         if images.get('artwork_negative') is not None:
