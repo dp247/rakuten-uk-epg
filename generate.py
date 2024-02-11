@@ -16,7 +16,8 @@ def get_days() -> list:
     now = datetime.now().replace(hour=(datetime.now()).hour, minute=0, second=0, microsecond=0)
     day_1 = (datetime.combine(datetime.now(), time(0, 0)) + timedelta(1))
     day_2 = (datetime.combine(datetime.now(), time(0, 0)) + timedelta(2))
-    return [now, day_1, day_2]
+    day_3 = (datetime.combine(datetime.now(), time(0, 0)) + timedelta(3))
+    return [now, day_1, day_2, day_3]
 
 
 def build_xmltv(channels: list, programmes: list) -> bytes:
