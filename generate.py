@@ -34,7 +34,7 @@ Make the channels and programmes into something readable by XMLTV
     data.set("generator-info-url", "https://github.com/dp247/")
     for ch in channels:
         channel = etree.SubElement(data, "channel")
-        channel.set("id", ch.get("id"))
+        channel.set("id", str(ch.get("id")))
         name = etree.SubElement(channel, "display-name")
         name.set("lang", ch.get("language")[:-1].lower())
         name.text = ch.get("name")
@@ -47,7 +47,7 @@ Make the channels and programmes into something readable by XMLTV
         start_time = datetime.fromtimestamp(pr.get('starts_at'), tz).strftime(dt_format)
         end_time = datetime.fromtimestamp(pr.get('ends_at'), tz).strftime(dt_format)
 
-        programme.set("channel", pr.get('channel_id'))
+        programme.set("channel", str(pr.get('channel_id')))
         programme.set("start", start_time)
         programme.set("stop", end_time)
 
@@ -66,11 +66,11 @@ Make the channels and programmes into something readable by XMLTV
             description.text = remove_control_characters(pr.get("description"))
 
         if pr.get('tags') is not None:
-            category = etree.SubElement(programme, "category")
-            category.set('lang', 'en')
-            category.text = pr.get("tags")[0].get("name")
-
-        continue
+            if len(pr.get('tags')) > 0:
+                category = etree.SubElement(programme, "category")
+                category.set('lang', 'en')
+                for tag in pr.get('tags'):
+                    category.text = tag.get("name")
 
     return etree.tostring(data, pretty_print=True, encoding='utf-8')
 
