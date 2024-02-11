@@ -31,7 +31,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: execute py script
-        run: python main.py
+        run: python generate.py
 
       - name: commit files
         run: |
