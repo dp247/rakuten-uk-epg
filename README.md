@@ -4,7 +4,7 @@ Provides a 48-hour XMLTV EPG for Rakuten UK's TV service.
 ## Usage
 Grab the XMLTV file from this link and paste it into your favorite IPTV client:
 ```
-https://raw.githubusercontent.com/dp247/Freeview-EPG/master/epg.xml
+https://raw.githubusercontent.com/dp247/rakuten-uk-epg/master/epg.xml
 ```
 
 ## Known issues
