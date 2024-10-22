@@ -140,10 +140,8 @@ for channel in json:
         title = item['title']
         subtitle = item['subtitle']
         description = item['description']
-        # start = datetime.strptime(item['starts_at'], '%Y-%m-%dT%H:%M:%S.000%z').timestamp()
-        # end = datetime.strptime(item['ends_at'][:-6], '%Y-%m-%dT%H:%M:%S.000').timestamp()
-        start = datetime.fromisoformat(item['starts_at']).timestamp()
-        end = datetime.fromisoformat(item['ends_at']).timestamp()
+        start = datetime.strptime(item['starts_at'], '%Y-%m-%dT%H:%M:%S.000%z').timestamp()
+        end = datetime.strptime(item['ends_at'], '%Y-%m-%dT%H:%M:%S.000%z').timestamp()
 
         programme_data.append({
             "title":       title,
