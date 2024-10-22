@@ -45,8 +45,8 @@ Make the channels and programmes into something readable by XMLTV
             icon_src.text = ''
     for pr in programmes:
         programme = etree.SubElement(data, 'programme')
-        start_time = datetime.fromisoformat(str(pr.get('starts_at'))).strftime(dt_format)
-        end_time = datetime.fromisoformat(str(pr.get('ends_at'))).strftime(dt_format)
+        start_time = datetime.fromtimestamp(pr.get('starts_at')).strftime(dt_format)
+        end_time = datetime.fromtimestamp(pr.get('ends_at')).strftime(dt_format)
 
         programme.set("channel", str(pr.get('channel_id')))
         programme.set("start", start_time)
@@ -140,8 +140,10 @@ for channel in json:
         title = item['title']
         subtitle = item['subtitle']
         description = item['description']
-        start = datetime.strptime(item['starts_at'], '%Y-%m-%dT%H:%M:%S.000%z').timestamp()
-        end = datetime.strptime(item['ends_at'][:-6], '%Y-%m-%dT%H:%M:%S.000').timestamp()
+        # start = datetime.strptime(item['starts_at'], '%Y-%m-%dT%H:%M:%S.000%z').timestamp()
+        # end = datetime.strptime(item['ends_at'][:-6], '%Y-%m-%dT%H:%M:%S.000').timestamp()
+        start = datetime.fromisoformat(item['starts_at']).timestamp()
+        end = datetime.fromisoformat(item['ends_at']).timestamp()
 
         programme_data.append({
             "title":       title,
