@@ -69,7 +69,7 @@ Make the channels and programmes into something readable by XMLTV
         if pr.get("subtitle") is not None:
             subtitle = etree.SubElement(programme, "sub-title")
             subtitle.set('lang', 'en')
-            subtitle.text = pr.get("subtitle")
+            subtitle.text = remove_control_characters(pr.get("subtitle"))
 
         if pr.get('description') is not None:
             description = etree.SubElement(programme, "desc")
