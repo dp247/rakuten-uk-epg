@@ -30,6 +30,16 @@ Make the channels and programmes into something readable by XMLTV
     # Timezones since UK has daylight savings
     dt_format = '%Y%m%d%H%M%S %z'
 
+    # Helper: accept either an epoch (int/float) or a timezone-aware datetime
+    def _to_tz_str(val):
+        if isinstance(val, datetime):
+            v = val
+            if v.tzinfo is None:
+                v = v.replace(tzinfo=timezone.utc)
+            return v.astimezone(tz).strftime(dt_format)
+        else:
+            return datetime.fromtimestamp(val, timezone.utc).astimezone(tz).strftime(dt_format)
+
     data = etree.Element("tv")
     data.set("generator-info-name", "rakuten-epg")
     data.set("generator-info-url", "https://github.com/dp247/")
@@ -45,8 +55,8 @@ Make the channels and programmes into something readable by XMLTV
             icon_src.text = ''
     for pr in programmes:
         programme = etree.SubElement(data, 'programme')
-        start_time = datetime.fromtimestamp(pr.get('starts_at'), tz).strftime(dt_format)
-        end_time = datetime.fromtimestamp(pr.get('ends_at'), tz).strftime(dt_format)
+        start_time = _to_tz_str(pr.get('starts_at'))
+        end_time = _to_tz_str(pr.get('ends_at'))
 
         programme.set("channel", str(pr.get('channel_id')))
         programme.set("start", start_time)
@@ -140,8 +150,9 @@ for channel in json:
         title = item['title']
         subtitle = item['subtitle']
         description = item['description']
-        start = datetime.strptime(item['starts_at'], '%Y-%m-%dT%H:%M:%S.000%z').timestamp()
-        end = datetime.strptime(item['ends_at'][:-6], '%Y-%m-%dT%H:%M:%S.000').timestamp()
+        # Parse both start and end as timezone-aware datetimes (preserve tzinfo)
+        start = datetime.strptime(item['starts_at'], '%Y-%m-%dT%H:%M:%S.000%z')
+        end = datetime.strptime(item['ends_at'], '%Y-%m-%dT%H:%M:%S.000%z')
 
         programme_data.append({
             "title":       title,
@@ -153,6 +164,28 @@ for channel in json:
             "language":    ch_language,
             "tags":        ch_tags,
         })
+
+# Normalize end times per channel to remove small gaps/overlaps
+# If the next programme on the same channel starts within `gap_threshold`
+# seconds after the current programme ends (or starts earlier), snap
+# the current programme's end to the next programme's start.
+gap_threshold = 60  # seconds; adjust if you want a different tolerance
+programme_data.sort(key=lambda p: (p['channel_id'], p['starts_at']))
+by_channel = {}
+for p in programme_data:
+    by_channel.setdefault(p['channel_id'], []).append(p)
+
+for ch_id, plist in by_channel.items():
+    for i in range(len(plist) - 1):
+        cur = plist[i]
+        nxt = plist[i + 1]
+        if nxt['starts_at'] <= cur['ends_at']:
+            # overlapping or contiguous: make sure no overlap by snapping
+            cur['ends_at'] = nxt['starts_at']
+        else:
+            gap = (nxt['starts_at'] - cur['ends_at']).total_seconds()
+            if gap <= gap_threshold:
+                cur['ends_at'] = nxt['starts_at']
 
 channel_xml = build_xmltv(channels_data, programme_data)
 
